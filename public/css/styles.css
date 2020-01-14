@@ -37,6 +37,12 @@ input {
     outline: none;
 }
 
+img {
+    border-radius: 20px;
+    height: 240px;
+    width: 480px;
+}
+
 button {
     cursor: pointer;
     padding: 12px;

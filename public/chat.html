@@ -11,6 +11,8 @@
 </head>
 
 <body>
+    <div id="dummy"></div>
+    <div id="txt"></div>
     <div class="chat">
         <div id="sidebar" class="chat__sidebar">
 
@@ -21,6 +23,7 @@
             <div class="compose">
                 <form id="message-form" autocomplete="off">
                     <input name="message" placeholder="Your message here...">
+                    <input id="send-image" type="file" accept="image/*" onchange="encode()">
                     <button>Send Message</button>
                 </form>
                 <button id="send-location">Send Location</button>
@@ -37,6 +40,16 @@
                 <span class="message__meta">{{createdAt}}</span>
             </p>
             <p>{{message}}</p>
+        </div>
+    </script>
+
+    <script id="image-template" type="text/html">
+        <div class="message">
+            <p>
+                <span class="message__name">{{username}}</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+            <img src="{{imageData}}" alt="Image" id="message-image">
         </div>
     </script>
 

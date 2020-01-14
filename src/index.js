@@ -2,7 +2,7 @@ const path = require('path')
 const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
-const { generateMessage, generateLocationMessage } = require('./utils/messages')
+const { generateMessage, generateImageMessage, generateLocationMessage } = require('./utils/messages')
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 const app = express()
@@ -37,8 +37,16 @@ io.on('connection', (socket) => {
 
     socket.on('sendMessage', (message, callback) => {
         const user = getUser(socket.id)
+
         io.to(user.room).emit('receiveMessage', generateMessage(user.username, message))
-        callback('Delivered.') 
+        callback('Delivered.')   
+    })
+
+    socket.on('sendImage', (message, callback) => {
+        const user = getUser(socket.id)
+
+        io.to(user.room).emit('receiveImage', generateImageMessage(user.username, message))
+        callback('Delivered')
     })
 
     socket.on('sendLocation', (location, callback) => {

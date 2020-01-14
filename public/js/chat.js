@@ -1,4 +1,5 @@
 const socket = io()
+let srcData = ''
 
 // Elements
 const $messageForm = document.querySelector('#message-form')
@@ -6,9 +7,11 @@ const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $locationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
+const $imageInput = document.querySelector('#send-image')
 
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
+const imageTemplate = document.querySelector('#image-template').innerHTML
 const locationTemplate = document.querySelector('#location-template').innerHTML
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
@@ -37,11 +40,35 @@ const autoscroll = () => {
     } 
 }
 
+
+const encode = () => {
+  let selectedfile = document.getElementById("send-image").files;
+  if (selectedfile.length > 0) {
+    const imageFile = selectedfile[0];
+    const fileReader = new FileReader();
+    fileReader.onload = (fileLoadedEvent) => {
+      srcData = fileLoadedEvent.target.result;
+      const newImage = document.createElement('img');
+      newImage.src = srcData;
+    }
+    fileReader.readAsDataURL(imageFile);
+  }
+}
+
 socket.on('receiveMessage', (message) => {
-    console.log(message)
     const html = Mustache.render(messageTemplate, {
         username: message.username,
         message: message.text,
+        createdAt: moment(message.createdAt).format('h:mm A')
+    })
+    $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
+})
+
+socket.on('receiveImage', (message) => {
+    const html = Mustache.render(imageTemplate, {
+        username: message.username,
+        imageData: message.image,
         createdAt: moment(message.createdAt).format('h:mm A')
     })
     $messages.insertAdjacentHTML('beforeend', html)
@@ -70,12 +97,22 @@ $messageForm.addEventListener('submit', (e) => {
     e.preventDefault()
 
     $messageFormButton.setAttribute('disabled', 'disabled')
+
+    if ($imageInput.files[0]) {
+        socket.emit('sendImage', srcData, (message) => {
+            $imageInput.value = null
+            $messageFormInput.focus()
+        })
+    }
     
-    socket.emit('sendMessage', e.target.elements.message.value, (message) => {
-        $messageFormButton.removeAttribute('disabled')
-        $messageFormInput.value = ''
-        $messageFormInput.focus()
-    })
+    if (e.target.elements.message.value) {
+        socket.emit('sendMessage', e.target.elements.message.value, (message) => {
+            $messageFormInput.value = ''
+            $messageFormInput.focus()
+        })
+    }
+    
+    $messageFormButton.removeAttribute('disabled')
 })
 
 $locationButton.addEventListener('click', () => {
