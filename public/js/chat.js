@@ -40,7 +40,7 @@ const autoscroll = () => {
     } 
 }
 
-
+// Encoding for image messages
 const encode = () => {
   let selectedfile = document.getElementById("send-image").files;
   if (selectedfile.length > 0) {
@@ -48,8 +48,6 @@ const encode = () => {
     const fileReader = new FileReader();
     fileReader.onload = (fileLoadedEvent) => {
       srcData = fileLoadedEvent.target.result;
-      const newImage = document.createElement('img');
-      newImage.src = srcData;
     }
     fileReader.readAsDataURL(imageFile);
   }
